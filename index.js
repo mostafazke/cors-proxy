@@ -1,8 +1,13 @@
-const express = require('express'),
-  request = require('request'),
-  bodyParser = require('body-parser'),
-  app = express();
-
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const axios = require('axios');
+const app = express();
+app.use(
+  cors({
+    origin: 'https://www.yalla-hagma.com',
+  })
+);
 const myLimit =
   typeof process.argv[2] != 'undefined' ? process.argv[2] : '100kb';
 console.log('Using limit: ', myLimit);
@@ -16,9 +21,8 @@ app.all('*', function (req, res, next) {
     'Access-Control-Allow-Headers',
     req.header('access-control-request-headers')
   );
-
   if (req.method === 'OPTIONS') {
-    // CORS Preflight
+    //   // CORS Preflight
     res.send();
   } else {
     const targetURL = req.header('Target-URL') || req.query.url; // Target-URL ie. https://example.com or http://example.com
@@ -28,20 +32,15 @@ app.all('*', function (req, res, next) {
         .send({ error: 'There is no Target-Endpoint header in the request' });
       return;
     }
-    request(
-      {
-        url: encodeURI(targetURL),
-        method: req.method,
-        json: req.body,
-        headers: { Authorization: req.header('Authorization') },
-      },
-      function (error, response, body) {
-        if (error) {
-          console.error('error: ' + response.statusCode);
-        }
-        //                console.log(body);
-      }
-    ).pipe(res);
+
+    axios
+      .get(targetURL, { responseType: 'document' })
+      .then(({ data }) => {
+        res.send(data);
+      })
+      .catch((err) => {
+        res.status(500).send({ error: err.message });
+      });
   }
 });
 
