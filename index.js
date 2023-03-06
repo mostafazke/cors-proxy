@@ -5,7 +5,7 @@ const axios = require('axios');
 const app = express();
 app.use(
   cors({
-    origin: 'https://www.yalla-hagma.com',
+    origin: '*',
   })
 );
 const myLimit =
