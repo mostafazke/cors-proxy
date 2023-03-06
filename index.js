@@ -30,7 +30,7 @@ app.all('*', function (req, res, next) {
     }
     request(
       {
-        url: targetURL + req.url,
+        url: encodeURI(targetURL),
         method: req.method,
         json: req.body,
         headers: { Authorization: req.header('Authorization') },
